@@ -1,15 +1,14 @@
 package algos;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.Flow;
+import java.lang.reflect.Array;
+import java.util.*;
+
 
 public class Flownetwork {
     private HashSet<Integer> nodes;
     public HashMap<Integer, HashMap<Integer,Float>> adjacency;
+    public HashMap<String,List<Integer>> beson=new HashMap<>();
     public HashMap<Integer, String> vertexNames;
     public Integer s;
     public Integer t;
@@ -17,13 +16,12 @@ public class Flownetwork {
 
 
     public Flownetwork(String filename) throws IOException {
-
+        t=900;
         nodes = new HashSet<Integer>();
         adjacency = new HashMap<Integer, HashMap<Integer, Float>>();
         vertexNames = new HashMap<Integer, String>();
         File file = new File(filename);
         BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-
         String string;
         while ((string = bufferedReader.readLine()) != null) {
             String[] splitted = string.split(" ");
@@ -107,12 +105,50 @@ public class Flownetwork {
                 }
             }
         }
+        initializeBesonderheiten();
+
+        for(Map.Entry<String, List<Integer>> entry : beson.entrySet()){
+
+            splitVertex(entry.getValue().get(0), Float.valueOf(entry.getValue().get(1)),entry.getKey());
+        }
+
+        addVertex(999);
+        s=999;
+        for (Map.Entry<Integer, String> entry : vertexNames.entrySet()) {
+            if (entry.getValue().contains("L")){
+                addEdge(s, entry.getKey(),1000.f);
+            }
+        }
+
     }
 
     public Flownetwork () {
         nodes = new HashSet<Integer>();
         adjacency = new HashMap<Integer, HashMap<Integer,Float>>();
         vertexNames = new HashMap<Integer,String>();
+    }
+
+
+    public void initialize(String name,Integer vertex,Integer capacity){
+        Integer[] arr={vertex,capacity};
+        beson.put(name, Arrays.asList(arr));
+    }
+
+    public void initializeBesonderheiten(){
+        String[] names={"KP4","KP17","KP50","KP66","KP72","KP101","KP102","KP111","KP114","KP115"};
+        Integer[] vertices={4,17,50,66,72,101,102,111,114,115};
+        Integer[] capacities={17,69,49,73,73,84,75,99,59,31};
+        for (int i = 0; i <10 ; i++) {
+            initialize(names[i],vertices[i],capacities[i]);
+        }
+    }
+
+    public void splitVertex(Integer vertex,Float capacity,String name){
+        HashMap<Integer,Float> hisAdj= (HashMap<Integer, Float>) adjacency.get(vertex).clone();
+        adjacency.get(vertex).clear();
+        addVertex(vertex*1500,name+"B");
+        addEdge(vertex,vertex*1500,capacity);
+        adjacency.replace(vertex*1500,hisAdj);
     }
 
     public void addVertex (Integer v) {
@@ -207,7 +243,8 @@ public class Flownetwork {
     }
 
     public static void main(String[] args) throws IOException {
-        Flownetwork ta=new Flownetwork("src/Files/output.txt");
+        Flownetwork ta=new Flownetwork("Files/output.txt");
+        //System.out.println(ta.vertexNames);
         ta.printNetwork();
     }
 
