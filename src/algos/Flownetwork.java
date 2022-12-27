@@ -15,7 +15,72 @@ public class Flownetwork {
 
 
 
-    public Flownetwork(String filename) throws IOException {
+
+    public Flownetwork (String filename) throws IOException {
+        init("C:\\Users\\21260\\Desktop\\effiziente algos\\Miniprojekt\\src\\Files\\output.txt");
+        nodes = new HashSet<Integer>();
+        adjacency = new HashMap<Integer, HashMap<Integer,Float>>();
+        HashMap<String, Integer> seenIds = new HashMap<String, Integer>();	// only required during construction
+        vertexNames = new HashMap<Integer, String>();
+        File file = new File(filename);
+
+        try {
+            final LineNumberReader reader = new LineNumberReader(new FileReader(file));
+            String str;
+            int id = 0;
+            String sName = reader.readLine().trim();
+            String tName = reader.readLine().trim();
+            while ((str = reader.readLine()) != null)
+            {
+                str = str.trim(); // trim away whitespace at either end of line
+                if (!str.startsWith("#") && !str.startsWith("%") ) {// skip comment lines
+                    StringTokenizer tokens = new StringTokenizer(str);
+                    if (tokens != null && tokens.countTokens() > 1) {	// only consider well-formed lines
+                        String vertexA = tokens.nextToken().trim();
+                        String vertexB = tokens.nextToken().trim();
+                        String lstr = tokens.nextToken().trim();
+                        Float l = Float.valueOf(lstr);
+                        l = (float) Math.round(l*100)/100;
+                        if (l<0.01) continue;
+                        if (vertexA.equals(vertexB)) {
+                            continue;
+                        }
+                        if (vertexA.equals(tName)){
+                            continue;
+                        }
+                        if (vertexB.equals(sName)){
+                            continue;
+                        }
+                        if (!seenIds.containsKey(vertexA)) {		// add vertex 0 if never seen before
+                            seenIds.put(vertexA, id);
+                            addVertex(id,vertexA);
+                            id++;
+                        }
+                        if (!seenIds.containsKey(vertexB)) {		// add vertex 1 if never seen before
+                            seenIds.put(vertexB, id);
+                            addVertex(id,vertexB);
+                            id++;
+                        }
+                        addVertex(id,"extra"+id);
+                        // add edge to adjacency lists
+                        addEdge(seenIds.get(vertexA), id,l);
+                        addEdge(id,seenIds.get(vertexB), l);
+                        id++;
+                        //addEdge(seenIds.get(vertexA),seenIds.get(vertexB), l);
+                    }
+                }
+            }
+            reader.close();
+            s =  seenIds.get(sName);
+            t =  seenIds.get(tName);
+            System.out.println(s+" "+t);
+        } catch (IOException e) {
+            System.out.println("Could not locate input file '"+filename+"'.");
+            System.exit(0);
+        }
+    }
+
+    public void init(String filename) throws IOException {
         t=900;
         nodes = new HashSet<Integer>();
         adjacency = new HashMap<Integer, HashMap<Integer, Float>>();
@@ -119,6 +184,8 @@ public class Flownetwork {
                 addEdge(s, entry.getKey(),1000.f);
             }
         }
+
+        whenWriteStringUsingBufferedWritter_thenCorrect("C:\\Users\\21260\\Desktop\\effiziente algos\\Miniprojekt\\src\\Files\\newFile.txt");
 
     }
 
@@ -235,17 +302,34 @@ public class Flownetwork {
 
     public void printNetwork(){
         for (Integer v : this.nodes){
-            //System.out.println(v);
             for (Integer u: this.getNeighbors(v)){
-                System.out.println(v.toString()+" "+u.toString()+" "+Float.toString(this.capacity(v,u)));
+                System.out.println(v+" "+u+" "+capacity(v,u));
             }
         }
     }
 
+    public void whenWriteStringUsingBufferedWritter_thenCorrect(String fileName)
+            throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+        writer.write(s+"\n");
+        writer.write(t+"\n");
+        for (Integer v : this.nodes){
+            for (Integer u: this.getNeighbors(v)){
+                String str= v+" "+u+" "+capacity(v,u);
+                writer.write(str+"\n");
+
+            }
+        }
+        writer.close();
+    }
+
+
+
+
     public static void main(String[] args) throws IOException {
-        Flownetwork ta=new Flownetwork("Files/output.txt");
-        //System.out.println(ta.vertexNames);
-        ta.printNetwork();
+        Flownetwork ta=new Flownetwork();
+
+        //ta.printNetwork();
     }
 
 }
