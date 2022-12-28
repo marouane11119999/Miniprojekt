@@ -10,14 +10,15 @@ public class Flownetwork {
     public HashMap<Integer, HashMap<Integer,Float>> adjacency;
     public HashMap<String,List<Integer>> beson=new HashMap<>();
     public HashMap<Integer, String> vertexNames;
+    public LinkedList<Integer> toAvoid=new LinkedList<>();
     public Integer s;
     public Integer t;
 
 
 
 
-    public Flownetwork (String filename) throws IOException {
-        init("C:\\Users\\21260\\Desktop\\effiziente algos\\Miniprojekt\\src\\Files\\output.txt");
+    public Flownetwork (String filename,Float geschenke) throws IOException {
+        init("C:\\Users\\21260\\Desktop\\effiziente algos\\Miniprojekt\\src\\Files\\output.txt",geschenke);
         nodes = new HashSet<Integer>();
         adjacency = new HashMap<Integer, HashMap<Integer,Float>>();
         HashMap<String, Integer> seenIds = new HashMap<String, Integer>();	// only required during construction
@@ -51,16 +52,22 @@ public class Flownetwork {
                         if (vertexB.equals(sName)){
                             continue;
                         }
+
                         if (!seenIds.containsKey(vertexA)) {		// add vertex 0 if never seen before
                             seenIds.put(vertexA, id);
                             addVertex(id,vertexA);
+                            if (vertexA.equals("2000")) toAvoid.add(id);
                             id++;
                         }
-                        if (!seenIds.containsKey(vertexB)) {		// add vertex 1 if never seen before
+                        if (!seenIds.containsKey(vertexB)) {
+                            // add vertex 1 if never seen before
                             seenIds.put(vertexB, id);
                             addVertex(id,vertexB);
+                            if (vertexB.equals("2000")) toAvoid.add(id);
                             id++;
                         }
+                        if (vertexA.equals("2000")) toAvoid.add(id);
+                        if (vertexB.equals("2000")) toAvoid.add(id);
                         addVertex(id,"extra"+id);
                         // add edge to adjacency lists
                         addEdge(seenIds.get(vertexA), id,l);
@@ -73,14 +80,14 @@ public class Flownetwork {
             reader.close();
             s =  seenIds.get(sName);
             t =  seenIds.get(tName);
-            System.out.println(s+" "+t);
+
         } catch (IOException e) {
             System.out.println("Could not locate input file '"+filename+"'.");
             System.exit(0);
         }
     }
 
-    public void init(String filename) throws IOException {
+    public void init(String filename,Float geschenke) throws IOException {
         t=900;
         nodes = new HashSet<Integer>();
         adjacency = new HashMap<Integer, HashMap<Integer, Float>>();
@@ -181,7 +188,7 @@ public class Flownetwork {
         s=999;
         for (Map.Entry<Integer, String> entry : vertexNames.entrySet()) {
             if (entry.getValue().contains("L")){
-                addEdge(s, entry.getKey(),1000.f);
+                addEdge(s, entry.getKey(),geschenke);
             }
         }
 
@@ -327,8 +334,8 @@ public class Flownetwork {
 
 
     public static void main(String[] args) throws IOException {
-        Flownetwork ta=new Flownetwork();
-
+        Flownetwork ta=new Flownetwork("C:\\Users\\21260\\Desktop\\effiziente algos\\Miniprojekt\\src\\Files\\newFile.txt",1000.f);
+        System.out.println(ta.toAvoid);
         //ta.printNetwork();
     }
 

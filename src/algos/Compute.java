@@ -1,16 +1,14 @@
 package algos;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Compute {
 
     Flownetwork g;
     private HashMap<Integer, HashMap<Integer,Float>> flow; // current flow values
     private LinkedList<Integer> P;//augmenting path
+    public static HashSet<LinkedList> usedPaths=new LinkedHashSet<>();
     private Float b; //value of augmentation
     public Compute(Flownetwork g){
         this.g = g;
@@ -18,7 +16,7 @@ public class Compute {
 
 
 
-    public float computeMaxFlow(){
+    public float computeMaxFlow(Float max){
         float val = 0.0f;
         //initialize flow
         flow = new HashMap<Integer, HashMap<Integer,Float>>();
@@ -30,8 +28,9 @@ public class Compute {
         }
         while (augment()){
             val = val+b;
-            //System.out.println("Current flow value "+val);
+            System.out.println("Current flow value "+val);
         }
+
 
         return val;
     }
@@ -43,8 +42,9 @@ public class Compute {
 
         if (DFS(g.s,visited)){//residual graph has augmenting path
             //update flow and residual graph
-
             //System.out.println("Found augmenting path, increasing flow by "+b);
+            System.out.println(P);
+            usedPaths.add(P);
             Integer prev = g.s;
             for (Integer v: P){
                 if (v==g.s) continue;
@@ -91,6 +91,7 @@ public class Compute {
                 }
                 prev=v;
             }
+
             return true;
         }
         else {
@@ -99,6 +100,7 @@ public class Compute {
 
     }
     private boolean DFS(Integer v, HashSet<Integer> visited){
+        if (g.toAvoid.contains(v)) return false;
         if (v==g.t){
             P.addFirst(v);
             return true;
@@ -119,6 +121,35 @@ public class Compute {
         }
     }
 
+
+    public  HashSet<List<Integer>> findAllPaths(
+            Integer start,
+            Integer end,
+            List<Integer> path
+    ) {
+        List<Integer> newPath = new ArrayList<>(path);
+        newPath.add(start);
+
+        if (start.equals(end)) {
+            HashSet<List<Integer>> result = new HashSet<>();
+            result.add(newPath);
+            return result;
+        }
+
+        if (!g.adjacency.containsKey(start)) {
+            return new HashSet<>();
+        }
+
+        HashSet<List<Integer>> paths = new HashSet<>();
+        for (Integer node : g.getNeighbors(start)) {
+            if (!newPath.contains(node)) {
+                HashSet<List<Integer>> newPaths = findAllPaths( node, end, newPath);
+                paths.addAll(newPaths);
+            }
+        }
+
+        return paths;
+    }
 
 
 }
