@@ -30,8 +30,6 @@ public class Compute {
             val = val+b;
             System.out.println("Current flow value "+val);
         }
-
-
         return val;
     }
 
@@ -43,7 +41,7 @@ public class Compute {
         if (DFS(g.s,visited)){//residual graph has augmenting path
             //update flow and residual graph
             //System.out.println("Found augmenting path, increasing flow by "+b);
-            System.out.println(P);
+            //System.out.println(P);
             usedPaths.add(P);
             Integer prev = g.s;
             for (Integer v: P){

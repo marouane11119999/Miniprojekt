@@ -333,10 +333,6 @@ public class Flownetwork {
 
 
 
-    public static void main(String[] args) throws IOException {
-        Flownetwork ta=new Flownetwork("C:\\Users\\21260\\Desktop\\effiziente algos\\Miniprojekt\\src\\Files\\newFile.txt",1000.f);
-        System.out.println(ta.toAvoid);
-        //ta.printNetwork();
-    }
+
 
 }
